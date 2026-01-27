@@ -1,5 +1,6 @@
 package com.arrive.invoiceservice.model.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Builder
 public class CreateInvoiceRequest {
 
+    @Valid
     @NotNull
-    private Set<@NotNull CreateLineItemRequest> lineItems;
+    private List<@NotNull CreateLineItemRequest> lineItems;
 }

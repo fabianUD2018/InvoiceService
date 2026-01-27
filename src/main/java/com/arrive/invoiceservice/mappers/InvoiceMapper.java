@@ -8,6 +8,11 @@ import com.arrive.invoiceservice.repository.entity.LineItemEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
+/*
+    Mapstructs mapper
+    This class should have unit test even though is an interface;
+    Given time constraints, I won't spend time on this.
+ */
 public interface InvoiceMapper {
 
     InvoiceResponse invoiceEntityToInvoiceResponse(InvoiceEntity invoiceEntity);

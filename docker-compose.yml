@@ -1,0 +1,19 @@
+services:
+  postgres_db:
+    container_name: postgres_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: invoice_password
+    ports:
+      - "5432:5432"
+
+  invoice_service:
+    image: invoice_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db
+    environment:
+      DB_HOST: postgres_db
+      DB_PASSWORD: invoice_password
