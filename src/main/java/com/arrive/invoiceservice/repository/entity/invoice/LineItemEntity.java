@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.repository.entity;
+package com.arrive.invoiceservice.repository.entity.invoice;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

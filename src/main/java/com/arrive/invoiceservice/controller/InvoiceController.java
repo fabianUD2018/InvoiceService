@@ -2,8 +2,10 @@ package com.arrive.invoiceservice.controller;
 
 import com.arrive.invoiceservice.model.request.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.PatchLineItemsRequest;
+import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.response.InvoiceResponse;
 import com.arrive.invoiceservice.service.InvoiceService;
+import com.arrive.invoiceservice.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -48,6 +51,11 @@ public class InvoiceController {
     @ResponseStatus(HttpStatus.OK)
     public InvoiceResponse updateLineItems(@PathVariable UUID uuid, @RequestBody @Valid PatchLineItemsRequest invoiceDetails) {
         return invoiceService.updateLineItems(uuid, invoiceDetails);
+    }
+
+    @PostMapping("/{uuid}/payInvoice")
+    public void payInvoice(@PathVariable UUID uuid, @RequestBody @Valid PayInvoiceRequest payInvoiceRequest) {
+        paymentService.processPayment(uuid, payInvoiceRequest);
     }
 
 }

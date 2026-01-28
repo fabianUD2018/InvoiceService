@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +15,6 @@ import java.util.Set;
 @Builder
 public class CreateInvoiceRequest {
 
-    @Valid
     @NotNull
-    private List<@NotNull CreateLineItemRequest> lineItems;
+    private List<@Valid @NotNull CreateLineItemRequest> lineItems;
 }

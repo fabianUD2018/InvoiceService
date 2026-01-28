@@ -1,6 +1,7 @@
 package com.arrive.invoiceservice.integration;
 
 import com.arrive.invoiceservice.repository.InvoiceRepository;
+import com.arrive.invoiceservice.repository.PaymentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class InvoiceControllerIT {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @MockitoBean
+    private PaymentRepository paymentRepository;
 
     @MockitoBean
     private InvoiceRepository invoiceRepository;

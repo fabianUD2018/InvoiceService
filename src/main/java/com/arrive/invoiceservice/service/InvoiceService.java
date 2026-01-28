@@ -6,7 +6,7 @@ import com.arrive.invoiceservice.model.request.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.InvoiceResponse;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
-import com.arrive.invoiceservice.repository.entity.InvoiceEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,7 @@ public class InvoiceService {
         return invoiceMapper.invoiceEntityToInvoiceResponse(invoiceRepository.save(invoice));
     }
 
-    private InvoiceEntity getInvoiceEntity(UUID uuid) {
+    public InvoiceEntity getInvoiceEntity(UUID uuid) {
         return invoiceRepository.findById(uuid)
                 .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + uuid));
     }

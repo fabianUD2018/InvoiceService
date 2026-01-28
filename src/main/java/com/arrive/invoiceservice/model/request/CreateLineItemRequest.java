@@ -1,6 +1,5 @@
 package com.arrive.invoiceservice.model.request;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +14,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Valid
 public class CreateLineItemRequest {
 
     @NotBlank

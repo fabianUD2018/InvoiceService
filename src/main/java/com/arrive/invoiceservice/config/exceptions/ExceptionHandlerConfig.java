@@ -3,7 +3,8 @@ package com.arrive.invoiceservice.config.exceptions;
 import com.arrive.invoiceservice.model.response.GenericErrorResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.ObjectError;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,15 +32,23 @@ public class ExceptionHandlerConfig {
                 validationException
                         .getFieldErrors()
                         .stream()
-                .collect(Collectors.toMap(ObjectError::getObjectName,
-                        e -> Optional.ofNullable(e.getDefaultMessage()).orElse("Invalid field"))));
+                        .collect(Collectors.toMap(FieldError::getField,
+                                e -> Optional.ofNullable(e.getDefaultMessage()).orElse("Invalid field"),
+                                (oldValue, newValue) -> newValue)));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public GenericErrorResponse handleException(HttpMessageNotReadableException httpMessageNotReadableException) {
+        log.debug("Error reading message body", httpMessageNotReadableException);
+        return new GenericErrorResponse(httpMessageNotReadableException.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public GenericErrorResponse handleException(Exception exception) {
         log.error("Unhandled exception", exception);
-        return new GenericErrorResponse(exception.getMessage());
+        return new GenericErrorResponse("Internal server error");
     }
 
 }

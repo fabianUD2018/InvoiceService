@@ -1,5 +1,6 @@
-package com.arrive.invoiceservice.repository.entity;
+package com.arrive.invoiceservice.repository.entity.invoice;
 
+import com.arrive.invoiceservice.repository.entity.payment.PaymentEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,5 +38,9 @@ public class InvoiceEntity {
 
     @CreationTimestamp
     private Instant createdDate;
+
     private Instant closedDate;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentEntity> status;
 }

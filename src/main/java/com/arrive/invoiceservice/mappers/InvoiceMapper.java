@@ -3,8 +3,8 @@ package com.arrive.invoiceservice.mappers;
 import com.arrive.invoiceservice.model.request.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.CreateLineItemRequest;
 import com.arrive.invoiceservice.model.response.InvoiceResponse;
-import com.arrive.invoiceservice.repository.entity.InvoiceEntity;
-import com.arrive.invoiceservice.repository.entity.LineItemEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
