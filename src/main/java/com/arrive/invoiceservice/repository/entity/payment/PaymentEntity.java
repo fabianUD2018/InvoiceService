@@ -21,7 +21,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name= "payment")
+@Table(name = "payment")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

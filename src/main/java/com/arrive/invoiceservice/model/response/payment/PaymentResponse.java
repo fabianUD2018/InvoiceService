@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.model.request.payments;
+package com.arrive.invoiceservice.model.response.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,11 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class PayInvoiceRequest {
+public class PaymentResponse {
 
-    private PaymentMethod paymentMethod;
+    private String paymentId;
+    private String status;
 
 }

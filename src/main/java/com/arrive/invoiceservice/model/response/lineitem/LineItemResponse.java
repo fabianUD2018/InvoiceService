@@ -1,21 +1,22 @@
-package com.arrive.invoiceservice.model.response;
+package com.arrive.invoiceservice.model.response.lineitem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InvoiceResponse {
+public class LineItemResponse {
 
     private UUID id;
-    private Instant createdDate;
-    private List<LineItemResponse> lineItems;
+
+    private String description;
+
+    private BigDecimal price;
 }

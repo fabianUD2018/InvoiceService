@@ -1,9 +1,10 @@
 package com.arrive.invoiceservice.controller;
 
-import com.arrive.invoiceservice.model.request.CreateInvoiceRequest;
-import com.arrive.invoiceservice.model.request.PatchLineItemsRequest;
+import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
+import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
-import com.arrive.invoiceservice.model.response.InvoiceResponse;
+import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
+import com.arrive.invoiceservice.model.response.payment.PaymentResponse;
 import com.arrive.invoiceservice.service.InvoiceService;
 import com.arrive.invoiceservice.service.PaymentService;
 import jakarta.validation.Valid;
@@ -53,9 +54,10 @@ public class InvoiceController {
         return invoiceService.updateLineItems(uuid, invoiceDetails);
     }
 
-    @PostMapping("/{uuid}/payInvoice")
-    public void payInvoice(@PathVariable UUID uuid, @RequestBody @Valid PayInvoiceRequest payInvoiceRequest) {
-        paymentService.processPayment(uuid, payInvoiceRequest);
+    @PostMapping("/{uuid}/payment")
+    @ResponseStatus(HttpStatus.OK)
+    public PaymentResponse payInvoice(@PathVariable UUID uuid, @RequestBody @Valid PayInvoiceRequest payInvoiceRequest) {
+        return paymentService.processPayment(uuid, payInvoiceRequest);
     }
 
 }

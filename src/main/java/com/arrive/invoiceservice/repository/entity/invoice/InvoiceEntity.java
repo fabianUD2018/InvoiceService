@@ -11,8 +11,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -20,12 +21,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "invoice")
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Entity
+@Table(name = "invoice")
 @DynamicInsert
 public class InvoiceEntity {
     @Id
@@ -42,5 +45,5 @@ public class InvoiceEntity {
     private Instant closedDate;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PaymentEntity> status;
+    private List<PaymentEntity> payments;
 }

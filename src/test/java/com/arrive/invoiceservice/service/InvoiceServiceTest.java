@@ -1,14 +1,20 @@
 package com.arrive.invoiceservice.service;
 
 import com.arrive.invoiceservice.config.exceptions.InvoiceNotFoundException;
+import com.arrive.invoiceservice.config.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.mappers.InvoiceMapperImpl;
-import com.arrive.invoiceservice.model.response.InvoiceResponse;
-import com.arrive.invoiceservice.model.response.LineItemResponse;
+import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
+import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
+import com.arrive.invoiceservice.model.response.lineitem.LineItemResponse;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
 import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
+import com.arrive.invoiceservice.repository.entity.payment.PaymentEntity;
+import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -42,15 +48,18 @@ class InvoiceServiceTest {
 
     @Test
     void getAllInvoices_shouldReturnAllInvoices_whenExists() {
-        var invoice = createRandomInvoiceEntity();
-        var expectedInvoices = List.of(invoice);
+        InvoiceEntity invoice = createRandomInvoiceEntity();
+        List<InvoiceEntity> expectedInvoices = List.of(invoice);
         when(invoiceRepository.findAll()).thenReturn(expectedInvoices);
-        var result = invoiceService.getAllInvoices();
+        List<InvoiceResponse> result = invoiceService.getAllInvoices();
         assertThat(result).hasSize(1);
         assertThat(result).isEqualTo(List.of(InvoiceResponse.builder()
                 .id(invoice.getId())
                 .lineItems(List.of(LineItemResponse.builder()
+                        .description("Random Line Item")
+                        .price(BigDecimal.valueOf(100.0))
                         .build()))
+                .total(BigDecimal.valueOf(100.0))
                 .build()));
     }
 
@@ -75,15 +84,16 @@ class InvoiceServiceTest {
         assertThat(result)
                 .usingRecursiveComparison()
                 .isEqualTo(InvoiceResponse
-                    .builder()
-                    .id(id)
-                    .lineItems(List.of(
-                            LineItemResponse.builder().price(BigDecimal.ONE)
-                                    .id(lineItemId)
-                                    .build()
-                    ))
+                        .builder()
+                        .id(id)
+                        .lineItems(List.of(
+                                LineItemResponse.builder().price(BigDecimal.ONE)
+                                        .id(lineItemId)
+                                        .build()
+                        ))
+                        .total(BigDecimal.ONE)
                         .build()
-        );
+                );
     }
 
     @Test
@@ -130,5 +140,19 @@ class InvoiceServiceTest {
         when(invoiceRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(InvoiceNotFoundException.class, () -> invoiceService.updateLineItems(id, request));
+    }
+
+    @EnumSource(value = PaymentStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"FAILED"})
+    @ParameterizedTest
+    void updateLineItems_shouldThrowException_whenStateIsNotCorrect(PaymentStatus paymentStatus) {
+        var id = UUID.randomUUID();
+        InvoiceEntity invoice = createRandomInvoiceEntity();
+        PaymentEntity payment = PaymentEntity.builder().paymentStatus(paymentStatus).invoice(invoice).build();
+        invoice.setPayments(List.of(payment));
+        PatchLineItemsRequest request = createRandomPatchLineItemRequest();
+
+        when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
+
+        assertThrows(InvoicePaymentStateException.class, () -> invoiceService.updateLineItems(id, request));
     }
 }

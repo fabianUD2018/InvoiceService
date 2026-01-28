@@ -1,5 +1,6 @@
-package com.arrive.invoiceservice.model.request;
+package com.arrive.invoiceservice.model.request.invoice;
 
+import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

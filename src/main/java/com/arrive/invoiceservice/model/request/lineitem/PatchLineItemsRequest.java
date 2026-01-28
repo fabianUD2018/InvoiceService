@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.model.request;
+package com.arrive.invoiceservice.model.request.lineitem;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +16,5 @@ import java.util.List;
 public class PatchLineItemsRequest {
 
     @NotNull
-    @Valid
-    private List<@NotNull CreateLineItemRequest> lineItems;
+    private List<@Valid @NotNull CreateLineItemRequest> lineItems;
 }

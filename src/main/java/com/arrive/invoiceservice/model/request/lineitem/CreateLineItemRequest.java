@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.model.request;
+package com.arrive.invoiceservice.model.request.lineitem;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
