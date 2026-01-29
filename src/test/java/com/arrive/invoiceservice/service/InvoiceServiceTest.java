@@ -6,9 +6,10 @@ import com.arrive.invoiceservice.mappers.InvoiceMapperImpl;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
 import com.arrive.invoiceservice.model.response.lineitem.LineItemResponse;
+import com.arrive.invoiceservice.model.response.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
-import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.ProductEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.arrive.invoiceservice.utils.InvoiceUtils.createLineItemEntity;
 import static com.arrive.invoiceservice.utils.InvoiceUtils.createRandomInvoiceEntity;
 import static com.arrive.invoiceservice.utils.InvoiceUtils.createRandomInvoiceRequest;
 import static com.arrive.invoiceservice.utils.InvoiceUtils.createRandomPatchLineItemRequest;
@@ -36,6 +38,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class InvoiceServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
 
     @Mock
     private InvoiceRepository invoiceRepository;
@@ -56,8 +61,9 @@ class InvoiceServiceTest {
         assertThat(result).isEqualTo(List.of(InvoiceResponse.builder()
                 .id(invoice.getId())
                 .lineItems(List.of(LineItemResponse.builder()
-                        .description("Random Line Item")
-                        .price(BigDecimal.valueOf(100.0))
+                        .sku("someSku")
+                        .quantity(1)
+                        .unitPrice(BigDecimal.valueOf(100.0))
                         .build()))
                 .total(BigDecimal.valueOf(100.0))
                 .build()));
@@ -73,10 +79,12 @@ class InvoiceServiceTest {
     @Test
     void getInvoice_shouldReturnInvoice_whenExists() {
         var id = UUID.randomUUID();
-        var lineItemId = UUID.randomUUID();
-        var invoice = InvoiceEntity.builder().id(id).lineItems(List.of(
-                LineItemEntity.builder().id(lineItemId).price(BigDecimal.ONE).build()
-        )).build();
+        var sku = "someSku";
+        var invoice = InvoiceEntity.builder().id(id)
+                .lineItems(List.of(
+                                createLineItemEntity(sku, BigDecimal.ONE)
+                        )
+                ).build();
         when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
 
         var result = invoiceService.getInvoice(id);
@@ -87,8 +95,10 @@ class InvoiceServiceTest {
                         .builder()
                         .id(id)
                         .lineItems(List.of(
-                                LineItemResponse.builder().price(BigDecimal.ONE)
-                                        .id(lineItemId)
+                                LineItemResponse.builder()
+                                        .quantity(1)
+                                        .unitPrice(BigDecimal.ONE)
+                                        .sku(sku)
                                         .build()
                         ))
                         .total(BigDecimal.ONE)
@@ -108,7 +118,7 @@ class InvoiceServiceTest {
         var request = createRandomInvoiceRequest();
         var id = UUID.randomUUID();
         var invoiceEntity = InvoiceEntity.builder().id(id).lineItems(List.of()).build();
-
+        when(productRepository.findById(any(String.class))).thenReturn(Optional.of(ProductEntity.builder().sku("someSku").build()));
         when(invoiceRepository.save(any(InvoiceEntity.class))).thenReturn(invoiceEntity);
 
         var result = invoiceService.createInvoice(request);
@@ -123,7 +133,7 @@ class InvoiceServiceTest {
 
         var existingInvoice = createRandomInvoiceEntity();
         var id = existingInvoice.getId();
-
+        when(productRepository.findById(any(String.class))).thenReturn(Optional.of(ProductEntity.builder().sku("someSku").build()));
         when(invoiceRepository.findById(id)).thenReturn(Optional.of(existingInvoice));
         when(invoiceRepository.save(existingInvoice)).thenReturn(existingInvoice);
 

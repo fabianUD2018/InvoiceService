@@ -22,6 +22,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ import static com.arrive.invoiceservice.utils.InvoiceUtils.createLineItemEntity;
 import static com.arrive.invoiceservice.utils.InvoiceUtils.createPayRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +66,7 @@ class PaymentServiceTest {
         var invoiceId = UUID.randomUUID();
         var paymentId = UUID.randomUUID();
         PayInvoiceRequest request = createPayRequest(paymentMethod);
-
+        List<PaymentStatus> expectedStatus = new ArrayList<>();
         InvoiceEntity invoice = InvoiceEntity.builder()
                 .id(invoiceId)
                 .lineItems(List.of(
@@ -72,21 +74,30 @@ class PaymentServiceTest {
                         createLineItemEntity("Item 2", new BigDecimal("200.00"))
                 ))
                 .build();
-        when(paymentRepository.save(any(PaymentEntity.class))).thenAnswer(arguments -> {
-                    PaymentEntity entity = arguments.getArgument(0);
-                    entity.setId(paymentId);
-                    return entity;
-                }
-        );
+        when(paymentRepository.save(any()))
+                .thenAnswer(arguments -> {
+                            PaymentEntity entity = arguments.getArgument(0);
+                            expectedStatus.add(entity.getPaymentStatus());
+                            entity.setId(paymentId);
+                            return entity;
+                        }
+                ).thenAnswer(arguments -> {
+                            PaymentEntity entity = arguments.getArgument(0);
+                            expectedStatus.add(entity.getPaymentStatus());
+                            return entity;
+                        }
+                );
+
         when(invoiceService.getInvoiceEntity(invoiceId)).thenReturn(invoice);
         when(paymentProviderFactory.getPaymentProvider(paymentMethod)).thenReturn(paymentServiceProvider);
         when(paymentServiceProvider.processPayment(any(PaymentEntity.class))).thenReturn(paymentProviderResult);
 
         PaymentResponse response = paymentService.processPayment(invoiceId, request);
 
-        verify(paymentRepository).save(paymentEntityCaptor.capture());
-        PaymentEntity savedPayment = paymentEntityCaptor.getValue();
-        assertThat(savedPayment)
+        verify(paymentRepository, times(2)).save(paymentEntityCaptor.capture());
+        List<PaymentEntity> savedPayment = paymentEntityCaptor.getAllValues();
+        assertThat(expectedStatus).containsExactly(PaymentStatus.INITIATED, status);
+        assertThat(savedPayment.get(0))
                 .extracting(PaymentEntity::getId, PaymentEntity::getAmount, PaymentEntity::getPaymentStatus, PaymentEntity::getPaymentProvider, PaymentEntity::getInvoice)
                 .containsExactly(paymentId, new BigDecimal("300.00"), status, provider, invoice);
         assertThat(response).extracting(PaymentResponse::getPaymentId, PaymentResponse::getStatus)

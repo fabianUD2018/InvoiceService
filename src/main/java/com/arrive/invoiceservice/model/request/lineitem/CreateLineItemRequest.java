@@ -17,9 +17,13 @@ import java.math.BigDecimal;
 public class CreateLineItemRequest {
 
     @NotBlank
-    private String description;
+    private String sku;
+
+    @NotNull
+    @Min(value = 1, message = "Quantity must be greater than 0")
+    private Integer quantity;
 
     @NotNull
     @Min(value = 1, message = "Price must be greater than 0")
-    private BigDecimal price;
+    private BigDecimal unitPrice;
 }

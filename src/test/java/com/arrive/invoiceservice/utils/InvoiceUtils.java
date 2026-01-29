@@ -7,6 +7,7 @@ import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.request.payments.PaymentMethod;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
 import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.ProductEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import lombok.experimental.UtilityClass;
@@ -21,7 +22,7 @@ public class InvoiceUtils {
 
     public static InvoiceEntity createRandomInvoiceEntity() {
         ArrayList<LineItemEntity> lineItems = new ArrayList<>();
-        lineItems.add(createLineItemEntity("Random Line Item", BigDecimal.valueOf(100.0)));
+        lineItems.add(createLineItemEntity("someSku", BigDecimal.valueOf(100.0)));
         return InvoiceEntity.builder()
                 .id(UUID.randomUUID())
                 .lineItems(lineItems)
@@ -34,15 +35,23 @@ public class InvoiceUtils {
                 .lineItems(createRandomLineItemRequest()).build();
     }
 
-    public static LineItemEntity createLineItemEntity(String description, BigDecimal price) {
-        return LineItemEntity.builder().description(description).price(price).build();
+    public static LineItemEntity createLineItemEntity(String sku, BigDecimal price) {
+        return LineItemEntity
+                .builder()
+                .product(
+                        ProductEntity.builder().sku(sku).build()
+                ).quantity(1)
+                .unitPrice(price)
+                .build();
     }
 
     public static List<CreateLineItemRequest> createRandomLineItemRequest() {
         return List.of(CreateLineItemRequest.builder()
-                .price(BigDecimal.valueOf(100.0))
-                .description("Random Line Item")
-                .build());
+                .unitPrice(BigDecimal.valueOf(100.0))
+                .sku("someSku")
+                .quantity(1)
+                .build()
+        );
     }
 
     public static PatchLineItemsRequest createRandomPatchLineItemRequest() {

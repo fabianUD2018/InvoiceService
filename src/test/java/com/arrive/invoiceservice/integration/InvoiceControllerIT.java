@@ -1,9 +1,11 @@
 package com.arrive.invoiceservice.integration;
 
 import com.arrive.invoiceservice.model.request.payments.PaymentMethod;
+import com.arrive.invoiceservice.model.response.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.PaymentRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.ProductEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +17,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,6 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class InvoiceControllerIT {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @MockitoBean
+    private ProductRepository productRepository;
 
     @MockitoBean
     private PaymentRepository paymentRepository;
@@ -81,6 +87,7 @@ public class InvoiceControllerIT {
 
     @Test
     void createInvoice_shouldReturn201_whenSuccessful() throws Exception {
+        when(productRepository.findById(any())).thenReturn(Optional.of(ProductEntity.builder().sku("Random_Line_Item").build()));
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/v1/invoice").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(createRandomInvoiceRequest())))
@@ -91,6 +98,7 @@ public class InvoiceControllerIT {
     @Test
     void updateLineItems_shouldReturn200_whenNoPayments() throws Exception {
         var invoice = createRandomInvoiceEntity();
+        when(productRepository.findById(any())).thenReturn(Optional.of(ProductEntity.builder().sku("Random_Line_Item").build()));
         when(invoiceRepository.findById(invoice.getId())).thenReturn(Optional.of(invoice));
         when(invoiceRepository.save(any())).thenAnswer(arguments -> arguments.getArgument(0));
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/invoice/{id}/line-items", invoice.getId())
@@ -170,12 +178,13 @@ public class InvoiceControllerIT {
 
     @EnumSource(value = PaymentStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"FAILED"})
     @ParameterizedTest
-    void payInvoice_shouldReturn409_whenPaymentIsAlreadyPaidOrIsPending(PaymentStatus paymentStatus) throws Exception {
+    void payInvoice_shouldReturn409_whenThereIsAValidPaymentInDb(PaymentStatus paymentStatus) throws Exception {
         var invoice = createRandomInvoiceEntity();
         var payment = createRandomPaymentEntity(paymentStatus);
         invoice.getPayments().add(payment);
         when(invoiceRepository.findById(invoice.getId())).thenReturn(Optional.of(invoice));
-        when(paymentRepository.save(any())).thenReturn(payment);
+        when(paymentRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
+        when(paymentRepository.findByInvoiceIdAndPaymentStatusIn(any(), any())).thenReturn(payment);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoice/{id}/payment", invoice.getId())
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
@@ -184,7 +193,7 @@ public class InvoiceControllerIT {
                         ))
                 )
                 .andExpect(status().isConflict())
-                .andExpectAll(jsonPath("$.message").value("There is a payment with status: %s for invoice: %s".formatted(paymentStatus.name(), invoice.getId())),
+                .andExpectAll(jsonPath("$.message").value("Payment is in %s for invoice: %s".formatted(paymentStatus.name(), invoice.getId())),
                         jsonPath("$.errors").doesNotExist());
     }
 }

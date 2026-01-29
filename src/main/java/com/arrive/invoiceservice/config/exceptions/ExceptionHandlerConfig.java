@@ -24,11 +24,11 @@ public class ExceptionHandlerConfig {
         return new GenericErrorResponse("Invoice not found on database");
     }
 
-    @ExceptionHandler(InvoicePaymentStateException.class)
+    @ExceptionHandler( {InvoicePaymentStateException.class, PaymentProcessingException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public GenericErrorResponse handleException(InvoicePaymentStateException invoiceNotFoundException) {
-        log.debug("Invalid invoice state", invoiceNotFoundException);
-        return new GenericErrorResponse(invoiceNotFoundException.getMessage());
+    public GenericErrorResponse handleException(RuntimeException exception) {
+        log.debug("Invalid invoice state", exception);
+        return new GenericErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

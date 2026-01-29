@@ -4,23 +4,27 @@ import com.arrive.invoiceservice.config.exceptions.InvoiceNotFoundException;
 import com.arrive.invoiceservice.config.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.mappers.InvoiceMapper;
 import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
+import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
+import com.arrive.invoiceservice.model.response.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
+import com.arrive.invoiceservice.repository.entity.invoice.ProductEntity;
 import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final ProductRepository productRepository;
     private final InvoiceMapper invoiceMapper;
 
     public List<InvoiceResponse> getAllInvoices() {
@@ -34,7 +38,10 @@ public class InvoiceService {
     }
 
     public InvoiceResponse createInvoice(CreateInvoiceRequest invoiceDto) {
-        InvoiceEntity invoice = invoiceMapper.createInvoiceRequestToInvoiceEntity(invoiceDto);
+        List<LineItemEntity> lineItemEntity = invoiceDto.getLineItems().stream()
+                .map(this::toLineItemEntity)
+                .toList();
+        InvoiceEntity invoice = InvoiceEntity.builder().lineItems(lineItemEntity).build();
         return invoiceMapper.invoiceEntityToInvoiceResponse(invoiceRepository.save(invoice));
     }
 
@@ -51,7 +58,11 @@ public class InvoiceService {
         var invoice = getInvoiceEntity(uuid);
         verifyInvoiceState(invoice);
         invoice.getLineItems().clear();
-        invoice.getLineItems().addAll(patchLineItemsRequest.getLineItems().stream().map(invoiceMapper::lineItemDtoToEntity).collect(Collectors.toSet()));
+        invoice.getLineItems().addAll(
+                patchLineItemsRequest.getLineItems()
+                .stream()
+                .map(this::toLineItemEntity).toList()
+        );
         return invoiceMapper.invoiceEntityToInvoiceResponse(invoiceRepository.save(invoice));
     }
 
@@ -68,10 +79,19 @@ public class InvoiceService {
     public void verifyInvoiceState(InvoiceEntity invoice) {
         invoice.getPayments().stream()
                 .filter(payment ->
-                        List.of(PaymentStatus.PAID, PaymentStatus.PENDING).contains(payment.getPaymentStatus()))
+                        List.of(PaymentStatus.INITIATED, PaymentStatus.PAID, PaymentStatus.PENDING).contains(payment.getPaymentStatus()))
                 .findFirst()
                 .ifPresent(payment -> {
                     throw new InvoicePaymentStateException("There is a payment with status: " + payment.getPaymentStatus() + " for invoice: " + invoice.getId());
                 });
+    }
+
+    private LineItemEntity toLineItemEntity(CreateLineItemRequest createLineItemRequest) {
+        ProductEntity product = productRepository.findById(createLineItemRequest.getSku())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product not found: sku=" + createLineItemRequest.getSku()
+                ));
+
+        return invoiceMapper.createLineItemRequestToLineItemEntity(createLineItemRequest, product);
     }
 }

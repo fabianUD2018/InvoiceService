@@ -5,20 +5,11 @@ create type payment_provider as ENUM ('STRIPE', 'PAYPAL', 'PAY_U');
 
 create table if not exists payment
 (
-    id
-    UUID
-    primary
-    key,
-    invoice_id
-    UUID
-    references
-    invoice
-(
-    id
-),
+    id UUID primary key,
+    invoice_id UUID references invoice (id),
     created_date timestamp,
     paid_date timestamp,
     payment_provider payment_provider,
     payment_status payment_status,
     amount numeric
-    );
+);
