@@ -4,7 +4,7 @@ import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.request.payments.PaymentMethod;
-import com.arrive.invoiceservice.model.response.repository.ProductRepository;
+import com.arrive.invoiceservice.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.PaymentRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;

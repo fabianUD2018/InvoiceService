@@ -6,7 +6,7 @@ import com.arrive.invoiceservice.mappers.InvoiceMapperImpl;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
 import com.arrive.invoiceservice.model.response.lineitem.LineItemResponse;
-import com.arrive.invoiceservice.model.response.repository.ProductRepository;
+import com.arrive.invoiceservice.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
 import com.arrive.invoiceservice.repository.entity.invoice.ProductEntity;

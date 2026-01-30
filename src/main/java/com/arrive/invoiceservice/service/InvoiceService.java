@@ -8,7 +8,7 @@ import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
-import com.arrive.invoiceservice.model.response.repository.ProductRepository;
+import com.arrive.invoiceservice.repository.ProductRepository;
 import com.arrive.invoiceservice.repository.InvoiceRepository;
 import com.arrive.invoiceservice.repository.entity.invoice.InvoiceEntity;
 import com.arrive.invoiceservice.repository.entity.invoice.LineItemEntity;
