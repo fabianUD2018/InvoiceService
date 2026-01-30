@@ -9,7 +9,7 @@ services:
       - "5432:5432"
 
   invoice_service:
-    image: invoice_service
+    image: "invoice_service:${IMAGE_TAG:-local}"
     ports:
       - "8080:8080"
     depends_on:
