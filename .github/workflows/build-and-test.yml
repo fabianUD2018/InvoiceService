@@ -37,7 +37,7 @@ jobs:
           name: jar-file
           path: build/libs/InvoiceService-0.0.1-SNAPSHOT.jar
       - name: build docker image
-        run: docker build -t invoice-service:${{ github.sha }} .
+        run: docker build -t invoice_service:${{ github.sha }} .
       - name: run compose
         run: docker compose up -d
       - name: run smoke test
