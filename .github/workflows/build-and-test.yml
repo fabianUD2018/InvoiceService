@@ -39,6 +39,8 @@ jobs:
       - name: build docker image
         run: docker build -t invoice_service:${{ github.sha }} .
       - name: run compose
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: docker compose up -d
       - name: run smoke test
         run: ./gradlew clean smokeTests
