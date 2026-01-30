@@ -37,14 +37,27 @@ dependencies {
     //swagger endpoints
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-spring:5.1.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'smoke'
+    }
+}
+
+tasks.register('smokeTests', Test) {
+    description = 'Runs tests tagged @Tag("smoke")'
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    useJUnitPlatform {
+        includeTags 'smoke'
+    }
 }

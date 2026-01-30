@@ -1,0 +1,23 @@
+{
+  "id": "${json-unit:any-string}",
+  "createdDate": "${json-unit:any-string}",
+  "lineItems": [
+    {
+      "sku": "shoes",
+      "quantity": 1,
+      "unitPrice": 100
+    },
+
+    {
+      "sku": "hat",
+      "quantity": 1,
+      "unitPrice": 400
+    },
+    {
+      "sku": "dress",
+      "quantity": 1,
+      "unitPrice": 999
+    }
+  ],
+  "total": 1499
+}

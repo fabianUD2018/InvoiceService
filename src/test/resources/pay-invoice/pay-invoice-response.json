@@ -1,0 +1,4 @@
+{
+  "paymentId": "${json-unit:any-string}",
+  "status": "PAID"
+}

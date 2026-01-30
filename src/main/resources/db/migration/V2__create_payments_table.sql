@@ -3,6 +3,7 @@ create type payment_status as ENUM ('PENDING', 'PAID', 'FAILED');
 
 create type payment_provider as ENUM ('STRIPE', 'PAYPAL', 'PAY_U');
 
+-- payment may have much more fields, but i am sticking to the minimum
 create table if not exists payment
 (
     id UUID primary key,

@@ -1,0 +1,9 @@
+{
+  "lineItems": [
+    {
+      "sku": "shoes",
+      "quantity": 10000,
+      "unitPrice": 100
+    }
+  ]
+}

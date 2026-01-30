@@ -1,0 +1,20 @@
+{
+  "lineItems": [
+    {
+      "sku": "shoes",
+      "quantity": 1,
+      "unitPrice": 100
+    },
+
+    {
+      "sku": "hat",
+      "quantity": 1,
+      "unitPrice": 400
+    },
+    {
+      "sku": "dress",
+      "quantity": 1,
+      "unitPrice": 999
+    }
+  ]
+}
