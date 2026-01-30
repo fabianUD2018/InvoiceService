@@ -3,6 +3,7 @@ package com.arrive.invoiceservice.service;
 import com.arrive.invoiceservice.model.exceptions.InvoiceNotFoundException;
 import com.arrive.invoiceservice.model.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.mappers.InvoiceMapper;
+import com.arrive.invoiceservice.model.exceptions.ProductNotFoundException;
 import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
@@ -39,7 +40,7 @@ public class InvoiceService {
 
     public InvoiceResponse createInvoice(CreateInvoiceRequest invoiceDto) {
         List<LineItemEntity> lineItemEntity = invoiceDto.getLineItems().stream()
-                .map(this::toLineItemEntity)
+                .map(this::getLineItemEntity)
                 .toList();
         InvoiceEntity invoice = InvoiceEntity.builder().lineItems(lineItemEntity).build();
         return invoiceMapper.invoiceEntityToInvoiceResponse(invoiceRepository.save(invoice));
@@ -61,7 +62,7 @@ public class InvoiceService {
         invoice.getLineItems().addAll(
                 patchLineItemsRequest.getLineItems()
                 .stream()
-                .map(this::toLineItemEntity).toList()
+                .map(this::getLineItemEntity).toList()
         );
         return invoiceMapper.invoiceEntityToInvoiceResponse(invoiceRepository.save(invoice));
     }
@@ -86,10 +87,10 @@ public class InvoiceService {
                 });
     }
 
-    private LineItemEntity toLineItemEntity(CreateLineItemRequest createLineItemRequest) {
+    private LineItemEntity getLineItemEntity(CreateLineItemRequest createLineItemRequest) {
         ProductEntity product = productRepository.findById(createLineItemRequest.getSku())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Product not found: sku=" + createLineItemRequest.getSku()
+                .orElseThrow(() -> new ProductNotFoundException(
+                        "Product not found: sku %s".formatted(createLineItemRequest.getSku())
                 ));
 
         return invoiceMapper.createLineItemRequestToLineItemEntity(createLineItemRequest, product);

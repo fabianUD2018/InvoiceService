@@ -42,7 +42,8 @@ To run the application, follow these steps
 3. Run the following command: ./run-me.sh in a terminal that supports bash scripts
 4. Wait for the application to start and open http://localhost:8080/swagger-ui/index.html#/
 5. Enjoy
-
+**Note:**
+If you want to run the application without docker,
 **This is the easiest way to run the application
 It will run a build of the project, create a docker image and run it in a docker compose
 the docker compose will also create a database container**
