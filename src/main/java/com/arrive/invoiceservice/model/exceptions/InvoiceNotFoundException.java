@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.config.exceptions;
+package com.arrive.invoiceservice.model.exceptions;
 
 public class InvoiceNotFoundException extends RuntimeException {
     public InvoiceNotFoundException(String message) {

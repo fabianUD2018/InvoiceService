@@ -1,7 +1,7 @@
 package com.arrive.invoiceservice.service;
 
-import com.arrive.invoiceservice.config.exceptions.InvoiceNotFoundException;
-import com.arrive.invoiceservice.config.exceptions.InvoicePaymentStateException;
+import com.arrive.invoiceservice.model.exceptions.InvoiceNotFoundException;
+import com.arrive.invoiceservice.model.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.mappers.InvoiceMapperImpl;
 import com.arrive.invoiceservice.model.request.lineitem.PatchLineItemsRequest;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
@@ -60,8 +60,9 @@ class InvoiceServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result).isEqualTo(List.of(InvoiceResponse.builder()
                 .id(invoice.getId())
+                        .createdDate(invoice.getCreatedDate())
                 .lineItems(List.of(LineItemResponse.builder()
-                        .sku("someSku")
+                        .sku("shoes")
                         .quantity(1)
                         .unitPrice(BigDecimal.valueOf(100.0))
                         .build()))
@@ -82,7 +83,7 @@ class InvoiceServiceTest {
         var sku = "someSku";
         var invoice = InvoiceEntity.builder().id(id)
                 .lineItems(List.of(
-                                createLineItemEntity(sku, BigDecimal.ONE)
+                                createLineItemEntity(sku, 1, BigDecimal.ONE, "random product")
                         )
                 ).build();
         when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
@@ -94,6 +95,7 @@ class InvoiceServiceTest {
                 .isEqualTo(InvoiceResponse
                         .builder()
                         .id(id)
+                        .createdDate(invoice.getCreatedDate())
                         .lineItems(List.of(
                                 LineItemResponse.builder()
                                         .quantity(1)

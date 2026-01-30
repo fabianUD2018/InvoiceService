@@ -1,7 +1,7 @@
 package com.arrive.invoiceservice.service;
 
-import com.arrive.invoiceservice.config.exceptions.InvoiceNotFoundException;
-import com.arrive.invoiceservice.config.exceptions.InvoicePaymentStateException;
+import com.arrive.invoiceservice.model.exceptions.InvoiceNotFoundException;
+import com.arrive.invoiceservice.model.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.mappers.InvoiceMapper;
 import com.arrive.invoiceservice.model.request.invoice.CreateInvoiceRequest;
 import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;

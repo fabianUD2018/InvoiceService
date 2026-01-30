@@ -1,5 +1,7 @@
 package com.arrive.invoiceservice.config.exceptions;
 
+import com.arrive.invoiceservice.model.exceptions.InvoiceNotFoundException;
+import com.arrive.invoiceservice.model.exceptions.InvoicePaymentStateException;
 import com.arrive.invoiceservice.model.response.GenericErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -35,10 +37,10 @@ class ExceptionHandlerConfigTest {
     @Test
     void handleException_MethodArgumentNotValidException_shouldReturnBadRequest() {
         MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
-        FieldError fieldError1 = new FieldError("someDto", "fieldOne", "messageOne");
-        FieldError fieldError2 = new FieldError("someDto", "fieldTwo", "messageTwo");
+        FieldError fieldErrorOne = new FieldError("someDto", "fieldOne", "messageOne");
+        FieldError fieldErrorTwo = new FieldError("someDto", "fieldTwo", "messageTwo");
 
-        when(exception.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
+        when(exception.getFieldErrors()).thenReturn(List.of(fieldErrorOne, fieldErrorTwo));
 
         GenericErrorResponse response = exceptionHandlerConfig.handleException(exception);
 

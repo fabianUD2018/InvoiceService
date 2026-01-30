@@ -1,6 +1,7 @@
 package com.arrive.invoiceservice.mappers;
 
 import com.arrive.invoiceservice.model.request.lineitem.CreateLineItemRequest;
+import com.arrive.invoiceservice.model.request.paymentprovider.PaymentProviderRequest;
 import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.request.payments.PaymentMethod;
 import com.arrive.invoiceservice.model.response.invoice.InvoiceResponse;
@@ -15,17 +16,10 @@ import com.arrive.invoiceservice.repository.entity.payment.PaymentStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.math.BigDecimal;
-
-/*
-    Map structs mapper
-    This class should have unit test even though is an interface;
-    Given time constraints, I won't spend time on this.
- */
 @Mapper(componentModel = "spring", imports = PaymentStatus.class)
 public interface InvoiceMapper {
 
-    @Mapping(target = "total", expression = "java(getTotalPayment(invoiceEntity))")
+    @Mapping(target = "total", expression = "java(invoiceEntity.getTotalPayment())")
     InvoiceResponse invoiceEntityToInvoiceResponse(InvoiceEntity invoiceEntity);
 
     @Mapping(target = "sku", source = "lineItemEntity.product.sku")
@@ -37,7 +31,7 @@ public interface InvoiceMapper {
     LineItemEntity createLineItemRequestToLineItemEntity(CreateLineItemRequest createLineItemRequest, ProductEntity productEntity);
 
     @Mapping(target = "paymentProvider", expression = "java(getPaymentProvider(payInvoiceRequest.getPaymentMethod()))")
-    @Mapping(target = "amount", expression = "java(getTotalPayment(invoiceEntity))")
+    @Mapping(target = "amount", expression = "java(invoiceEntity.getTotalPayment())")
     @Mapping(target = "invoice", source = "invoiceEntity")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "paymentStatus", expression = "java(PaymentStatus.INITIATED)")
@@ -49,16 +43,15 @@ public interface InvoiceMapper {
     @Mapping(target = "status", expression = "java(paymentEntity.getPaymentStatus().name())")
     PaymentResponse paymentEntityToPaymentResponse(PaymentEntity paymentEntity);
 
-    default BigDecimal getTotalPayment(InvoiceEntity invoice) {
-        return invoice.getLineItems()
-                .stream().map(lineItemEntity -> lineItemEntity.getUnitPrice().multiply(BigDecimal.valueOf(lineItemEntity.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
     default PaymentProvider getPaymentProvider(PaymentMethod paymentMethod) {
         return switch (paymentMethod) {
             case STRIPE -> PaymentProvider.STRIPE;
             case PAYPAL -> PaymentProvider.PAYPAL;
         };
     }
+
+    @Mapping(target = "amountToPay", source = "payment.amount")
+    @Mapping(target = "paymentId", source = "payment.id")
+    @Mapping(target = "currency", ignore = true)
+    PaymentProviderRequest paymentEntityToPaymentProviderRequest(PaymentEntity payment);
 }

@@ -1,7 +1,8 @@
 package com.arrive.invoiceservice.service;
 
-import com.arrive.invoiceservice.enums.PaymentProviderResult;
+import com.arrive.invoiceservice.model.request.paymentprovider.PaymentProviderResult;
 import com.arrive.invoiceservice.mappers.InvoiceMapperImpl;
+import com.arrive.invoiceservice.model.request.paymentprovider.PaymentProviderRequest;
 import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.request.payments.PaymentMethod;
 import com.arrive.invoiceservice.model.response.payment.PaymentResponse;
@@ -70,8 +71,8 @@ class PaymentServiceTest {
         InvoiceEntity invoice = InvoiceEntity.builder()
                 .id(invoiceId)
                 .lineItems(List.of(
-                        createLineItemEntity("Item 1", new BigDecimal("100.00")),
-                        createLineItemEntity("Item 2", new BigDecimal("200.00"))
+                        createLineItemEntity("someSkuOne", 1, new BigDecimal("100.00"), "random product"),
+                        createLineItemEntity("someSkuTwo", 1, new BigDecimal("200.00"), "random product")
                 ))
                 .build();
         when(paymentRepository.save(any()))
@@ -90,7 +91,7 @@ class PaymentServiceTest {
 
         when(invoiceService.getInvoiceEntity(invoiceId)).thenReturn(invoice);
         when(paymentProviderFactory.getPaymentProvider(paymentMethod)).thenReturn(paymentServiceProvider);
-        when(paymentServiceProvider.processPayment(any(PaymentEntity.class))).thenReturn(paymentProviderResult);
+        when(paymentServiceProvider.processPayment(any(PaymentProviderRequest.class))).thenReturn(paymentProviderResult);
 
         PaymentResponse response = paymentService.processPayment(invoiceId, request);
 

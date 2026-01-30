@@ -3,6 +3,7 @@ package com.arrive.invoiceservice.model.request.lineitem;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 public class CreateLineItemRequest {
 
     @NotBlank
+    @Pattern(regexp = "shoes|hat|dress", message = "SKU must be one of: shoes, hat, dress")
     private String sku;
 
     @NotNull

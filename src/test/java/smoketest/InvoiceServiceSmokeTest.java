@@ -13,6 +13,9 @@ import static net.javacrumbs.jsonunit.spring.WebTestClientJsonMatcher.json;
 
 
 @Tag( "smoke")
+/**
+ * Smoke tests for the InvoiceService, ensuring basic functionality and basic error handling.
+ */
 public class InvoiceServiceSmokeTest {
 
     private final WebTestClient webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:8080").build();
@@ -65,7 +68,7 @@ public class InvoiceServiceSmokeTest {
                 .bodyValue(Files.readString(Paths.get("src/test/resources/pay-invoice/pay-invoice-request.json")))
                 .exchange()
                 .expectStatus()
-                .isOk()
+                .isCreated()
                 .expectBody()
                 .consumeWith(json().isEqualTo(Files.readString(Paths.get("src/test/resources/pay-invoice/pay-invoice-response.json"))));
     }

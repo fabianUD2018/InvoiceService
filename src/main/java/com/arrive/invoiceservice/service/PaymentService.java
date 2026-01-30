@@ -1,7 +1,7 @@
 package com.arrive.invoiceservice.service;
 
-import com.arrive.invoiceservice.config.exceptions.PaymentProcessingException;
-import com.arrive.invoiceservice.enums.PaymentProviderResult;
+import com.arrive.invoiceservice.model.exceptions.PaymentProcessingException;
+import com.arrive.invoiceservice.model.request.paymentprovider.PaymentProviderResult;
 import com.arrive.invoiceservice.mappers.InvoiceMapper;
 import com.arrive.invoiceservice.model.request.payments.PayInvoiceRequest;
 import com.arrive.invoiceservice.model.response.payment.PaymentResponse;
@@ -33,7 +33,7 @@ public class PaymentService {
         PaymentEntity payment = initiatePayment(request, invoice);
         PaymentProviderResult newPaymentStatus = paymentProviderFactory
                 .getPaymentProvider(request.getPaymentMethod())
-                .processPayment(payment);
+                .processPayment(invoiceMapper.paymentEntityToPaymentProviderRequest(payment));
         setPaymentStatus(newPaymentStatus, payment);
         return invoiceMapper.paymentEntityToPaymentResponse(paymentRepository.save(payment));
     }
@@ -44,6 +44,7 @@ public class PaymentService {
             return paymentRepository.save(payment);
         } catch (DataIntegrityViolationException e) {
             PaymentEntity currentPayment = paymentRepository.findByInvoiceIdAndPaymentStatusIn(invoice.getId(), Set.of(PaymentStatus.INITIATED, PaymentStatus.PENDING, PaymentStatus.PAID));
+            //todo: if payment is in INITIATED or PENDING state, the process could continue, give the payment id is used as idempotency key
             throw new PaymentProcessingException("Payment is in %s for invoice: %s".formatted(currentPayment.getPaymentStatus(), invoice.getId()), e);
         }
     }

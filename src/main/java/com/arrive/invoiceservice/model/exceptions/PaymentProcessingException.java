@@ -1,4 +1,4 @@
-package com.arrive.invoiceservice.config.exceptions;
+package com.arrive.invoiceservice.model.exceptions;
 
 public class PaymentProcessingException extends RuntimeException {
     public PaymentProcessingException(String message, Exception exception) {

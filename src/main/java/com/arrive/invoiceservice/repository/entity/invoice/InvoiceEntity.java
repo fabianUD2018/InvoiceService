@@ -17,6 +17,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -47,4 +48,10 @@ public class InvoiceEntity {
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentEntity> payments;
+
+    public BigDecimal getTotalPayment() {
+        return lineItems
+                .stream().map(lineItemEntity -> lineItemEntity.getUnitPrice().multiply(BigDecimal.valueOf(lineItemEntity.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }
